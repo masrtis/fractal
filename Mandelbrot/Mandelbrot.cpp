@@ -10,17 +10,35 @@
 
 
 template<class T>
-inline int IteratePoint(T cx, T cy)
+inline int MandelbrotIteration(T cx, T cy)
 {
 	T x = 0;
 	T y = 0;
 	T xTemp = 0;
 	int n = 0;
 
-	while ( x*x + y*y < 4 && n < iterationCap)
+	while (x*x + y*y < 4 && n < iterationCap)
 	{
 		xTemp = x*x - y*y + cx;
 		y = 2 * x*y + cy;
+		x = xTemp;
+		++n;
+	}
+	return n;
+}
+
+template<class T>
+inline int BurningShipIteration(T cx, T cy)
+{
+	T x = 0;
+	T y = 0;
+	T xTemp = 0;
+	int n = 0;
+
+	while (x*x + y*y < 10 && n < iterationCap)//questionable
+	{
+		xTemp = x*x - y*y + cx;
+		y = 2 * abs(x*y) + cy;
 		x = xTemp;
 		++n;
 	}
@@ -43,7 +61,7 @@ void CalculateArrayBetween(T xMin, T xMax, T yMin, T yMax)
 	{
 		for (int i = 0; i < width; ++i)
 		{
-			(*pixelArrayPtr)[j*width + i] = IteratePoint(xMin + i*dx, yMin + j*dy);
+			(*pixelArrayPtr)[j*width + i] = BurningShipIteration(xMin + i*dx, yMin + j*dy);
 		}
 	}
 
@@ -58,9 +76,7 @@ void CalculateArrayBetween(T xMin, T xMax, T yMin, T yMax)
 
 int main()
 {
-	CalculateArrayBetween(-2.0L, 0.5L, -1.25L, 1.25L);
-	std::cout << "Press any key\n";
-	std::getchar();
+	CalculateArrayBetween(-2.0L, 4.0L, -1.6L, 1.0L);
 	return 0;
 }
 

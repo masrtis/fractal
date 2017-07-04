@@ -9,7 +9,7 @@
 
 const int height(1000);
 const int width(1000);
-const int iterationCap(500);
+const int iterationCap(1000);
 
 template<class A, class B>
 void WriteFile(std::array<A,height*width>* pxArrayPtr, std::string& fileLocation, B xMin, B xMax, B yMin, B yMax)
