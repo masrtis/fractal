@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+
 import numpy as np
 import time
 
@@ -18,8 +19,13 @@ end = time.time()
 print((end - start)*1000,"ms")
 
 
+nums = np.ma.masked_where(nums > iterationCap - 1, nums)
+
+cmap = plt.cm.gist_rainbow
+cmap.set_bad(color='black')
+
 print("Generating plot")
 fig, ax = plt.subplots()
-ax.imshow(nums,extent=[xMin,xMax,yMin,yMax],cmap='gist_rainbow')
+ax.imshow(nums,extent=[xMin,xMax,yMin,yMax],cmap=cmap)
 
 plt.show()

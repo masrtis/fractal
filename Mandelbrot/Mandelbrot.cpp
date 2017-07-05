@@ -9,18 +9,13 @@
 #include <vector>
 #include <string>
 
-const int height(500);
-const int width(500);
-const int iterationCap(100);
+const int height(800);
+const int width(800);
+const int iterationCap(1000);
 const std::string baseDirectory("A:/Code/Mandelbrot/");
-//#define renderMaxCapAtZero
 //#define dontWriteFile
+#define takeModOfIterations
 
-
-inline double normalize(int n, double x, double y)
-{
-	return n + 1 - log(log(sqrt(x*x+y*y))) / log(2);
-}
 
 
 template<class T>
@@ -48,11 +43,12 @@ inline double MandelbrotIteration(T cx, T cy)
 		++n;
 	}
 
-#ifdef renderMaxCapAtZero
-	if (n == iterationCap)
-		n = 0;
+#ifdef takeModOfIterations
+	//If n is at the bailout value, it's left alone so the renderer can place it off the scale
+	return n == iterationCap ? n : n % 10;
+#else
+	return n;
 #endif
-	return n + 1 - log(log(sqrt(x2 + y2))) / log(2);
 }
 
 template<class T>
@@ -70,7 +66,7 @@ inline double BurningShipIteration(T cx, T cy)
 		x = xTemp;
 		++n;
 	}
-	return normalize(n,x,y);
+	return n;
 }
 
 template<class T>
