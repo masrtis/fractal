@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <Windows.h>
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -14,6 +13,9 @@ const int height(500);
 const int width(500);
 const int iterationCap(100);
 const std::string baseDirectory("A:/Code/Mandelbrot/");
+//#define renderMaxCapAtZero
+//#define dontWriteFile
+
 
 inline double normalize(int n, double x, double y)
 {
@@ -26,17 +28,31 @@ inline double MandelbrotIteration(T cx, T cy)
 {
 	T x = 0;
 	T y = 0;
+
+	//Claim: computing the sqaures once and saving them results in a 5% performance improvement.
+	T x2 = 0;
+	T y2 = 0;
+
 	T xTemp = 0;
 	int n = 0;
 
-	while (x*x + y*y < 4 && n < iterationCap)
+	while (true)
 	{
-		xTemp = x*x - y*y + cx;
+		x2 = x*x;
+		y2 = y*y;
+		if (x2 + y2 >= 4 || n == iterationCap)
+			break;
+		xTemp = x2 - y2 + cx;
 		y = 2 * x*y + cy;
 		x = xTemp;
 		++n;
 	}
-	return normalize(n, x, y);
+
+#ifdef renderMaxCapAtZero
+	if (n == iterationCap)
+		n = 0;
+#endif
+	return n + 1 - log(log(sqrt(x2 + y2))) / log(2);
 }
 
 template<class T>
@@ -80,10 +96,11 @@ void CalculateArrayBetween(T xMin, T xMax, T yMin, T yMax)
 	std::cout << "Frame " << frameCount << ": " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 	std::string writeLocation = baseDirectory + "rawArrays/" + std::to_string(frameCount) + ".txt";
-
+#ifndef dontWriteFile
 	start = std::clock();
 	WriteFile(pixelArrayPtr, writeLocation, xMin, xMax, yMin, yMax);
-	std::cout << "Write took:" << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+	std::cout << "Write took: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+#endif
 }
 
 void WriteFile(std::array<double, height*width>* pxArrayPtr, std::string& fileLocation, double xMin, double xMax, double yMin, double yMax)
