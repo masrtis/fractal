@@ -9,13 +9,17 @@
 #include <vector>
 #include <string>
 
-const int height(800);
-const int width(800);
-const int iterationCap(1000);
-const std::string baseDirectory("A:/Code/Mandelbrot/");
-//#define dontWriteFile
-#define takeModOfIterations
+//Config ----------------------------------------------------------------
+const int height(2000);
+const int width(2000);
+const int iterationCap(2000);
 
+//Why set the base directory as absolute path? I want running the binary from MSVS
+//and running the binary from the command line to create files in the same place.
+const std::string baseDirectory("A:/Code/Mandelbrot/");
+//#define dontWriteFile //This is mostly or benchmarking the main loop
+#define takeModOfIterations
+//------------------------------------------------------------------------
 
 
 template<class T>
@@ -61,12 +65,16 @@ inline double BurningShipIteration(T cx, T cy)
 
 	while (x*x + y*y < 10 && n < iterationCap)//questionable
 	{
-		xTemp = x*x - y*y + cx;
-		y = 2 * abs(x*y) + cy;
+		xTemp = x*x - y*y - cx;
+		y = 2 * abs(x*y) - cy;
 		x = xTemp;
 		++n;
 	}
+#ifdef takeModOfIterations
+	return n == iterationCap ? n : n % 10;
+#else
 	return n;
+#endif
 }
 
 template<class T>
@@ -74,6 +82,8 @@ void CalculateArrayBetween(T xMin, T xMax, T yMin, T yMax)
 {
 	static int frameCount = 0;
 	++frameCount;
+
+	//The below allocation will be moved out of this function in the event that many frames are computed
 	auto pixelArrayPtr = new std::array<T, width*height>;
 
 	T dx = (xMax - xMin) / width;
@@ -124,7 +134,8 @@ void WriteFile(std::array<double, height*width>* pxArrayPtr, std::string& fileLo
 
 int main(int argc, char* argv[])
 {
-	std::vector<double> frameBounds{ -2.3L, 0.7L, -1.2L, 1.2L };
+	std::vector<double> frameBounds{ -2.3L, 0.7L, -1.2L, 1.2L };//mandelbrot default
+	std::vector<double> frameBounds{ -4.0L, 4.0L, -2.0L, 2.0L };//burning ship default (biggest ship @ 1.7 1.82 -0.02 0.08)
 
 	//parse arguments
 	int i = 0;
@@ -138,7 +149,7 @@ int main(int argc, char* argv[])
 			{
 				try
 				{
-					frameBounds[p] = std::stod(argv[i]);
+					frameBounds[p] = std::stod(argv[i]);//stod() actually has some stange ideas about what strings are convertible
 					++p;
 				}
 				catch (...)
@@ -147,6 +158,7 @@ int main(int argc, char* argv[])
 					return -1;
 				}
 			}//frame arguments are read
+
 			if (p != 4)
 			{
 				std::cout << "Error: exactly 4 parameters must follow the --frame argument\n";

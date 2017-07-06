@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
-
 import numpy as np
 import time
 
 baseDirectory = "A:/Code/Mandelbrot/"
-
 file = baseDirectory + "rawArrays/1.txt"
+
 #Read frame variables
 with open(file, 'r') as f:
     textValues = f.readline().split(',')
@@ -13,19 +12,22 @@ with open(file, 'r') as f:
 
 #Read csv data
 print("Reading in numpy array\n")
+
 start = time.time()
+
 nums = np.genfromtxt(file, delimiter=",", skip_header=1)
+
 end = time.time()
 print((end - start)*1000,"ms")
 
-
+#Mask out pixels that reached max iterations
 nums = np.ma.masked_where(nums > iterationCap - 1, nums)
-
 cmap = plt.cm.gist_rainbow
 cmap.set_bad(color='black')
 
+
 print("Generating plot")
 fig, ax = plt.subplots()
-ax.imshow(nums,extent=[xMin,xMax,yMin,yMax],cmap=cmap)
+ax.imshow(nums,extent=[xMin,xMax,yMin,yMax],cmap=cmap,origin='lower')
 
 plt.show()
